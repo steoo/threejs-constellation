@@ -2,7 +2,6 @@
   "name": "constellation",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://steoo.github.io/threejs-constellation",
   "dependencies": {
     "@react-three/drei": "^9.108.4",
     "@react-three/fiber": "^8.16.8",

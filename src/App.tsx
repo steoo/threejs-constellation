@@ -16,7 +16,7 @@ import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 
 import FrustumVisualizer, { LogCameraPosition } from "./FrustumVisualiser";
 
-const cameraPosition = [0, 1, 520];
+const cameraPosition = [0, 1, 200];
 const [x, y, z] = cameraPosition;
 
 const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
@@ -25,7 +25,7 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
 }) => {
   const color = new THREE.Color();
   const fontProps = {
-    font: "/Inter-Bold.woff",
+    font: "/times-new-roman.woff",
     fontSize: 2.5,
     letterSpacing: -0.05,
     lineHeight: 1,
@@ -116,23 +116,21 @@ function WordsCloud({ count = 4, radius = 20 }) {
 
 export default function App() {
   return (
-    <Canvas
-      dpr={[1, 2]}
-      camera={{ position: [x, y, z], near: 10, far: 200, fov: 90 }}
-    >
+    <Canvas dpr={[1, 2]} camera={{ position: [x, y, z], fov: 90 }}>
       {/* eslint-disable-next-line react/no-unknown-property */}
-      {/* <ambientLight intensity={0.2} /> */}
+      <ambientLight intensity={0.2} />
       <fog attach="fog" args={["#222222", 0, 80]} />
       <gridHelper args={[1000, 100]} />
       <axesHelper args={[1000]} />
-      <Stars radius={40} depth={50} count={15000} factor={5} fade />
+      <Stars radius={40} depth={50} count={8000} factor={5} fade />
       <Suspense fallback={null}>
         <Cloud
           opacity={1}
           color="#ffffff"
           speed={0.1}
           growth={1}
-          position={new THREE.Vector3(0, 0, z - 1)}
+          scale={50}
+          position={new THREE.Vector3(0, 0, 20)}
         />
         <WordsCloud count={8} radius={20} />
         <TrackballControls maxDistance={z} />
