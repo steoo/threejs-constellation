@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/threejs-constellation/static/css/main.d8728a0e.css",
-    "main.js": "/threejs-constellation/static/js/main.56906ae4.js",
-    "index.html": "/threejs-constellation/index.html",
-    "main.d8728a0e.css.map": "/threejs-constellation/static/css/main.d8728a0e.css.map",
-    "main.56906ae4.js.map": "/threejs-constellation/static/js/main.56906ae4.js.map"
+    "main.css": "/static/css/main.d8728a0e.css",
+    "main.js": "/static/js/main.0aa4ad34.js",
+    "index.html": "/index.html",
+    "main.d8728a0e.css.map": "/static/css/main.d8728a0e.css.map",
+    "main.0aa4ad34.js.map": "/static/js/main.0aa4ad34.js.map"
   },
   "entrypoints": [
     "static/css/main.d8728a0e.css",
-    "static/js/main.56906ae4.js"
+    "static/js/main.0aa4ad34.js"
   ]
 }
