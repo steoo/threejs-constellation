@@ -24,6 +24,7 @@
   },
   "plugins": ["@typescript-eslint", "import", "simple-import-sort"],
   "rules": {
+    "react/no-unknown-property": ["error", { "ignore": ["args", "attach"] }],
     "react/self-closing-comp": "error",
     "react-hooks/rules-of-hooks": 2,
     "react-hooks/exhaustive-deps": 2,
