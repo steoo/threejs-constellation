@@ -9,14 +9,15 @@ import {
   Text,
   TrackballControls,
 } from "@react-three/drei";
-import { Canvas, useFrame, ThreeEvent } from "@react-three/fiber";
+import { Canvas, useFrame, ThreeEvent, useThree } from "@react-three/fiber";
 import { generate } from "random-words";
 import * as THREE from "three";
 import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 
 import FrustumVisualizer, { LogCameraPosition } from "./FrustumVisualiser";
+import GlowingText, { fontProps } from "./GlowingText";
 
-const cameraPosition = [0, 1, 200];
+const cameraPosition = [0, 10, 200];
 const [x, y, z] = cameraPosition;
 
 const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
@@ -24,16 +25,6 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
   ...props
 }) => {
   const color = new THREE.Color();
-  const fontProps = {
-    font:
-      process.env.NODE_ENV === "production"
-        ? "/threejs-constellation/times-new-roman.woff"
-        : "/times-new-roman.woff",
-    fontSize: 2.5,
-    letterSpacing: -0.05,
-    lineHeight: 1,
-    "material-toneMapped": false,
-  };
   const ref = useRef<Mesh>();
   const [hovered, setHovered] = useState(false);
   const over = (e: ThreeEvent<PointerEvent>) => (
@@ -77,62 +68,98 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
   );
 };
 
-function WordsCloud({ count = 4, radius = 20, radiusX = 60, radiusY = 20 }) {
-  // Create a count x count random words with spherical distribution
+function WordsCloud({ count = 4, radiusX = 40, radiusY = 20 }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Initialize angles for each word
   const words = useMemo(() => {
     const temp = [];
-    const spherical = new THREE.Spherical();
-    const cylindrical = new THREE.Cylindrical();
-    const phiSpan = Math.PI / (count + 1);
     const thetaSpan = (2 * Math.PI) / count;
-
-    // for (let i = 1; i < count + 1; i++) {
-    //   for (let j = 0; j < count; j++) {
-    //     const phi = phiSpan * i;
-    //     const theta = thetaSpan * j;
-    //     const position = new THREE.Vector3().setFromSpherical(
-    //       spherical.set(radius, phi, theta),
-    //     );
-    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    //     temp.push([position, generate()]);
-    //     console.log(
-    //       `Position ${i},${j}: ${position.x}, ${position.y}, ${position.z}`,
-    //     );
-    //   }
-    // }
-    // for (let i = 1; i < count + 1; i++) {
-    //   const theta = thetaSpan * i;
-    //   const position = new THREE.Vector3().setFromCylindricalCoords(
-    //     radius,
-    //     theta,
-    //     0,
-    //   );
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    //   temp.push([position, generate()]);
-    // }
 
     for (let i = 0; i < count; i++) {
       const theta = thetaSpan * i;
-      const x = radiusX * Math.cos(theta);
-      const y = radiusY * Math.sin(theta);
-      const position = new THREE.Vector3(x, y, 0);
-      temp.push([position, generate()]);
+      temp.push([theta, generate()]);
     }
 
     return temp;
-  }, [count, radiusX, radiusY]);
+  }, [count]);
+
+  useFrame(({ clock }) => {
+    if (groupRef.current) {
+      const elapsedTime = clock.getElapsedTime();
+      const thetaSpan = (2 * Math.PI) / count;
+
+      groupRef.current.children.forEach((child, i) => {
+        const theta = thetaSpan * i + elapsedTime * 0.02; // Adjust the speed here
+        const x = radiusX * Math.cos(theta);
+        const y = radiusY * Math.sin(theta);
+
+        child.position.set(x, 0, y);
+      });
+    }
+  });
 
   return (
-    <group position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-      {words.map(([pos, word], index) => (
+    <group ref={groupRef} position={[0, 0, 0]}>
+      {words.map(([theta, word], index) => (
         <Word
           key={index}
-          position={pos as Vector3}
+          position={
+            new Vector3(
+              radiusX * Math.cos(theta as number),
+              0,
+              radiusY * Math.sin(theta as number),
+            )
+          }
           children={word as React.ReactNode}
         />
       ))}
     </group>
   );
+}
+
+function CameraZoom() {
+  const { camera } = useThree();
+  const groupRef = useRef<THREE.Group>(null);
+
+  const duration = 1;
+  const startTime = useRef<number | null>(null);
+  const [targetZ, setTargetZ] = useState<number>(0);
+
+  const easeInOutQuad = (t: number) =>
+    t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  useEffect(() => {
+    if (groupRef.current) {
+      const box = new THREE.Box3().setFromObject(groupRef.current);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+
+      // Set the targetZ dynamically based on the WordsCloud position
+      setTargetZ(center.z + size.z / 2 + 10); // Adding a bit of buffer
+    }
+
+    startTime.current = performance.now();
+  }, []);
+
+  useFrame(() => {
+    if (startTime.current !== null && targetZ !== 0) {
+      const elapsedTime = (performance.now() - startTime.current) / 1000;
+      const t = Math.min(elapsedTime / duration, 1);
+      const easeT = easeInOutQuad(t);
+      const newZ = THREE.MathUtils.lerp(z, targetZ, easeT);
+      camera.position.set(x, y, newZ);
+
+      if (t >= 1) {
+        // Stop the animation once the target is reached
+        startTime.current = null;
+      }
+    }
+  });
+
+  return <WordsCloud count={10} />;
 }
 
 export default function App() {
@@ -144,26 +171,29 @@ export default function App() {
       {/* eslint-disable-next-line react/no-unknown-property */}
       <ambientLight intensity={0.2} />
       <fog attach="fog" args={["#222222", 0, 80]} />
-      <gridHelper args={[1000, 100]} />
-      <axesHelper args={[1000]} />
-      <Stars radius={40} depth={50} count={8000} factor={5} fade />
+      {/* <gridHelper args={[1000, 100]} /> */}
+      {/* <axesHelper args={[1000]} /> */}
+      <Stars radius={100} depth={50} count={8000} factor={5} fade />
       {/* <mesh visible position={[0, 0, 10]}>
         <lineBasicMaterial />
         <shapeGeometry args={[shape, 32]} />
       </mesh> */}
       <Suspense fallback={null}>
-        {/* <Cloud
+        <Cloud
           opacity={0.3}
-          color="#ffffff"
+          color="#cbcbcb"
           speed={0.1}
           growth={1}
-          scale={50}
-          position={new THREE.Vector3(0, 0, z / 2)}
-        /> */}
-        <WordsCloud count={10} radius={40} />
+          scale={40}
+          position={new THREE.Vector3(0, 0, 10)}
+        />
+        <Billboard>
+          <GlowingText>Cosa ti manca per essere felice?</GlowingText>
+        </Billboard>
         <TrackballControls maxDistance={z} />
         {/* <FrustumVisualizer /> */}
         <LogCameraPosition />
+        <CameraZoom />
       </Suspense>
     </Canvas>
   );
