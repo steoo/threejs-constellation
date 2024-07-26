@@ -25,7 +25,10 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
 }) => {
   const color = new THREE.Color();
   const fontProps = {
-    font: "/times-new-roman.woff",
+    font:
+      process.env.NODE_ENV === "production"
+        ? "/threejs-constellation/times-new-roman.woff"
+        : "/times-new-roman.woff",
     fontSize: 2.5,
     letterSpacing: -0.05,
     lineHeight: 1,
@@ -74,14 +77,14 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
   );
 };
 
-function WordsCloud({ count = 4, radius = 20 }) {
+function WordsCloud({ count = 4, radius = 20, radiusX = 60, radiusY = 20 }) {
   // Create a count x count random words with spherical distribution
   const words = useMemo(() => {
     const temp = [];
     const spherical = new THREE.Spherical();
     const cylindrical = new THREE.Cylindrical();
     const phiSpan = Math.PI / (count + 1);
-    const thetaSpan = Math.PI / count;
+    const thetaSpan = (2 * Math.PI) / count;
 
     // for (let i = 1; i < count + 1; i++) {
     //   for (let j = 0; j < count; j++) {
@@ -97,25 +100,30 @@ function WordsCloud({ count = 4, radius = 20 }) {
     //     );
     //   }
     // }
-    for (let i = 1; i < count + 1; i++) {
+    // for (let i = 1; i < count + 1; i++) {
+    //   const theta = thetaSpan * i;
+    //   const position = new THREE.Vector3().setFromCylindricalCoords(
+    //     radius,
+    //     theta,
+    //     0,
+    //   );
+    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    //   temp.push([position, generate()]);
+    // }
+
+    for (let i = 0; i < count; i++) {
       const theta = thetaSpan * i;
-      const position = new THREE.Vector3().setFromCylindricalCoords(
-        radius,
-        theta,
-        0,
-      );
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const x = radiusX * Math.cos(theta);
+      const y = radiusY * Math.sin(theta);
+      const position = new THREE.Vector3(x, y, 0);
       temp.push([position, generate()]);
     }
 
     return temp;
-  }, [count, radius]);
+  }, [count, radiusX, radiusY]);
 
   return (
-    <group
-      rotation={[0, THREE.MathUtils.degToRad(-100), 0]}
-      position={[0, 0, 0]}
-    >
+    <group position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
       {words.map(([pos, word], index) => (
         <Word
           key={index}
