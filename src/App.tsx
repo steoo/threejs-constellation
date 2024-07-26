@@ -79,30 +79,43 @@ function WordsCloud({ count = 4, radius = 20 }) {
   const words = useMemo(() => {
     const temp = [];
     const spherical = new THREE.Spherical();
+    const cylindrical = new THREE.Cylindrical();
     const phiSpan = Math.PI / (count + 1);
-    const thetaSpan = (Math.PI * 2) / count;
+    const thetaSpan = Math.PI / count;
 
+    // for (let i = 1; i < count + 1; i++) {
+    //   for (let j = 0; j < count; j++) {
+    //     const phi = phiSpan * i;
+    //     const theta = thetaSpan * j;
+    //     const position = new THREE.Vector3().setFromSpherical(
+    //       spherical.set(radius, phi, theta),
+    //     );
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    //     temp.push([position, generate()]);
+    //     console.log(
+    //       `Position ${i},${j}: ${position.x}, ${position.y}, ${position.z}`,
+    //     );
+    //   }
+    // }
     for (let i = 1; i < count + 1; i++) {
-      for (let j = 0; j < count; j++) {
-        const phi = phiSpan * i;
-        const theta = thetaSpan * j;
-        const position = new THREE.Vector3().setFromSpherical(
-          spherical.set(radius, phi, theta),
-        );
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        temp.push([position, generate()]);
-        console.log(
-          `Position ${i},${j}: ${position.x}, ${position.y}, ${position.z}`,
-        );
-      }
+      const theta = thetaSpan * i;
+      const position = new THREE.Vector3().setFromCylindricalCoords(
+        radius,
+        theta,
+        0,
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      temp.push([position, generate()]);
     }
 
     return temp;
   }, [count, radius]);
 
   return (
-    /* eslint-disable-next-line react/no-unknown-property */
-    <group rotation={[10, 10.5, 10]} position={[0, 0, 0]}>
+    <group
+      rotation={[0, THREE.MathUtils.degToRad(-100), 0]}
+      position={[0, 0, 0]}
+    >
       {words.map(([pos, word], index) => (
         <Word
           key={index}
@@ -115,6 +128,9 @@ function WordsCloud({ count = 4, radius = 20 }) {
 }
 
 export default function App() {
+  const shape = new THREE.Shape();
+  shape.absellipse(0, 0, 40, 20, 0, Math.PI * 2, false, 0);
+
   return (
     <Canvas dpr={[1, 2]} camera={{ position: [x, y, z], fov: 90 }}>
       {/* eslint-disable-next-line react/no-unknown-property */}
@@ -123,16 +139,20 @@ export default function App() {
       <gridHelper args={[1000, 100]} />
       <axesHelper args={[1000]} />
       <Stars radius={40} depth={50} count={8000} factor={5} fade />
+      {/* <mesh visible position={[0, 0, 10]}>
+        <lineBasicMaterial />
+        <shapeGeometry args={[shape, 32]} />
+      </mesh> */}
       <Suspense fallback={null}>
-        <Cloud
-          opacity={1}
+        {/* <Cloud
+          opacity={0.3}
           color="#ffffff"
           speed={0.1}
           growth={1}
           scale={50}
-          position={new THREE.Vector3(0, 0, 20)}
-        />
-        <WordsCloud count={8} radius={20} />
+          position={new THREE.Vector3(0, 0, z / 2)}
+        /> */}
+        <WordsCloud count={10} radius={40} />
         <TrackballControls maxDistance={z} />
         {/* <FrustumVisualizer /> */}
         <LogCameraPosition />
