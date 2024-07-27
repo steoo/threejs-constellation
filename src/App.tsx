@@ -31,7 +31,7 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
     e.stopPropagation(), setHovered(true)
   );
   const out = () => setHovered(false);
-  // Change the mouse cursor on hover¨
+  // Change the mouse cursor on hover
   useEffect(() => {
     if (hovered) document.body.style.cursor = "pointer";
 
@@ -68,9 +68,17 @@ const Word: React.FC<React.PropsWithChildren<BillboardProps>> = ({
   );
 };
 
-function WordsCloud({ count = 4, radiusX = 40, radiusY = 20 }) {
-  const groupRef = useRef<THREE.Group>(null);
-
+function WordsCloud({
+  count = 4,
+  radiusX = 40,
+  radiusY = 20,
+  groupRef,
+}: {
+  count?: number;
+  radiusX?: number;
+  radiusY?: number;
+  groupRef: React.RefObject<THREE.Group>;
+}) {
   // Initialize angles for each word
   const words = useMemo(() => {
     const temp = [];
@@ -118,9 +126,8 @@ function WordsCloud({ count = 4, radiusX = 40, radiusY = 20 }) {
   );
 }
 
-function CameraZoom() {
+function CameraZoom({ groupRef }: { groupRef: React.RefObject<THREE.Group> }) {
   const { camera } = useThree();
-  const groupRef = useRef<THREE.Group>(null);
 
   const duration = 1;
   const startTime = useRef<number | null>(null);
@@ -138,11 +145,11 @@ function CameraZoom() {
       box.getCenter(center);
 
       // Set the targetZ dynamically based on the WordsCloud position
-      setTargetZ(center.z + size.z / 2 + 10); // Adding a bit of buffer
+      setTargetZ(center.z + size.z / 2 + 15); // Adding a bit of buffer
     }
 
     startTime.current = performance.now();
-  }, []);
+  }, [groupRef]);
 
   useFrame(() => {
     if (startTime.current !== null && targetZ !== 0) {
@@ -150,7 +157,9 @@ function CameraZoom() {
       const t = Math.min(elapsedTime / duration, 1);
       const easeT = easeInOutQuad(t);
       const newZ = THREE.MathUtils.lerp(z, targetZ, easeT);
-      camera.position.set(x, y, newZ);
+      camera.position.set(x, y, newZ + 10);
+
+      console.log(newZ);
 
       if (t >= 1) {
         // Stop the animation once the target is reached
@@ -159,12 +168,14 @@ function CameraZoom() {
     }
   });
 
-  return <WordsCloud count={10} />;
+  return null;
 }
 
 export default function App() {
   const shape = new THREE.Shape();
   shape.absellipse(0, 0, 40, 20, 0, Math.PI * 2, false, 0);
+
+  const groupRef = useRef<THREE.Group>(null);
 
   return (
     <Canvas dpr={[1, 2]} camera={{ position: [x, y, z], fov: 90 }}>
@@ -179,6 +190,7 @@ export default function App() {
         <shapeGeometry args={[shape, 32]} />
       </mesh> */}
       <Suspense fallback={null}>
+        <WordsCloud count={10} groupRef={groupRef} />
         <Cloud
           opacity={0.3}
           color="#cbcbcb"
@@ -193,7 +205,7 @@ export default function App() {
         <TrackballControls maxDistance={z} />
         {/* <FrustumVisualizer /> */}
         <LogCameraPosition />
-        <CameraZoom />
+        <CameraZoom groupRef={groupRef} />
       </Suspense>
     </Canvas>
   );

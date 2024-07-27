@@ -116,11 +116,11 @@ export default function FrustumVisualizer() {
 export function LogCameraPosition() {
   const { camera } = useThree();
 
-  useFrame(() => {
-    console.log(
-      `Camera position: x=${camera.position.x}, y=${camera.position.y}, z=${camera.position.z}`,
-    );
-  });
+  // useFrame(() => {
+  //   console.log(
+  //     `Camera position: x=${camera.position.x}, y=${camera.position.y}, z=${camera.position.z}`,
+  //   );
+  // });
 
   return null;
 }
