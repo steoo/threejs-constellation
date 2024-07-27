@@ -4,6 +4,10 @@ An experiment created with [react-three-fiber](https://github.com/pmndrs/react-t
 
 Also visualises things (through the use of helpers) which is IMO the hardest thing to do when working with three.js
 
+# Available in Github Pages
+
+[Watch it live](https://steoo.github.io/threejs-constellation)
+
 ## Available Scripts
 
 In the project directory, you can run:
