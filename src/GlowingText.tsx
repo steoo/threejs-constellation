@@ -1,25 +1,15 @@
-import React, { useRef, useState, useMemo, useEffect } from "react";
+import React, { useRef, useState } from "react";
 
 import { Text } from "@react-three/drei";
 import { useFrame, ThreeEvent } from "@react-three/fiber";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
+
+import { fontProps } from "./Word";
 
 interface GlowingTextProps {
   children: React.ReactNode;
   position?: [number, number, number];
 }
-
-export const fontProps = {
-  font:
-    process.env.NODE_ENV === "production"
-      ? "/threejs-constellation/times-new-roman.woff"
-      : "/times-new-roman.woff",
-  fontSize: 2.5,
-  letterSpacing: -0.05,
-  lineHeight: 1,
-  "material-toneMapped": false,
-};
 
 const GlowingText: React.FC<GlowingTextProps> = ({
   children,
@@ -34,11 +24,6 @@ const GlowingText: React.FC<GlowingTextProps> = ({
     setHovered(true);
   };
   const out = () => setHovered(false);
-
-  useEffect(() => {
-    if (hovered) document.body.style.cursor = "pointer";
-    else document.body.style.cursor = "auto";
-  }, [hovered]);
 
   useFrame(({ clock }) => {
     const elapsedTime = clock.getElapsedTime();

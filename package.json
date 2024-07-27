@@ -26,7 +26,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "react-scripts build && gh-pages -d build"
+    "build-and-serve": "npm run build && serve -s build/",
+    "build-gh-pages": "PUBLIC_URL=/threejs-constellation npm run build",
+    "deploy": "npm run build-gh-pages && gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
