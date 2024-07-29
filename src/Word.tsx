@@ -10,7 +10,7 @@ export const fontProps = {
     process.env.NODE_ENV === "production"
       ? "/threejs-constellation/times-new-roman.woff"
       : "/times-new-roman.woff",
-  fontSize: 2.5,
+  fontSize: 1.5,
   letterSpacing: -0.05,
   lineHeight: 1,
   color: "#C2BFB6",

@@ -1,6 +1,8 @@
 import * as THREE from "three";
 
-const GlowShader = {
+export const cameraPosition = [0, 10, 200];
+
+export const GlowShader = {
   vertexShader: `
     varying vec3 vNormal;
     void main() {
@@ -19,4 +21,15 @@ const GlowShader = {
   `,
 };
 
-export default GlowShader;
+export const phrases = [
+  "Il merito della laurea",
+  "La stabilità del lavoro",
+  "Il futuro dei figli",
+  "L’indipendenza della macchina",
+  "La sicurezza della casa",
+  "La gioia delle feste",
+  "La flessibilità della fede",
+  "Conoscere le buone maniere",
+  "La forza del matrimonio",
+  "La ricarica delle vacanze",
+];

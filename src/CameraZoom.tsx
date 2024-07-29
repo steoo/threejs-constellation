@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { cameraPosition } from "./App";
+import { cameraPosition } from "./constants";
 
 export default function CameraZoom({
   groupRef,

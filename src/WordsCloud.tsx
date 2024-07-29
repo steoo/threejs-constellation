@@ -4,10 +4,10 @@ import { useFrame } from "@react-three/fiber";
 import { generate } from "random-words";
 import * as THREE from "three";
 
+import { phrases } from "./constants";
 import Word from "./Word";
 
 export default function WordsCloud({
-  count = 4,
   radiusX = 40,
   radiusY = 20,
   groupRef,
@@ -17,6 +17,8 @@ export default function WordsCloud({
   radiusY?: number;
   groupRef: React.RefObject<THREE.Group>;
 }) {
+  const count = phrases.length;
+
   // Initialize angles for each word
   const words = useMemo(() => {
     const temp = [];
@@ -24,7 +26,7 @@ export default function WordsCloud({
 
     for (let i = 0; i < count; i++) {
       const theta = thetaSpan * i;
-      temp.push([theta, generate()]);
+      temp.push([theta, phrases[i]]);
     }
 
     return temp;

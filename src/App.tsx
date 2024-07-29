@@ -5,16 +5,17 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import CameraZoom from "./CameraZoom";
+import { cameraPosition } from "./constants";
+import EllipseCamera from "./EllipseCamera";
 import { LogCameraPosition } from "./FrustumVisualiser";
 import GlowingText from "./GlowingText";
 import WordsCloud from "./WordsCloud";
 
-export const cameraPosition = [0, 10, 200];
-const [x, y, z] = cameraPosition;
-
 export default function App() {
   const shape = new THREE.Shape();
   shape.absellipse(0, 0, 40, 20, 0, Math.PI * 2, false, 0);
+
+  const [x, y, z] = cameraPosition;
 
   const groupRef = useRef<THREE.Group>(null);
 
@@ -31,7 +32,7 @@ export default function App() {
         <shapeGeometry args={[shape, 32]} />
       </mesh> */}
       <Suspense fallback={null}>
-        <WordsCloud count={10} groupRef={groupRef} />
+        <WordsCloud groupRef={groupRef} />
         <Cloud
           opacity={0.4}
           color="#04000c"
@@ -44,6 +45,7 @@ export default function App() {
           <GlowingText>Cosa ti manca per essere felice?</GlowingText>
         </Billboard>
         <TrackballControls maxDistance={z} />
+        {/* <EllipseCamera /> */}
         {/* <FrustumVisualizer /> */}
         <LogCameraPosition />
         <CameraZoom groupRef={groupRef} />

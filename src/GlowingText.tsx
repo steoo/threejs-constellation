@@ -42,6 +42,7 @@ const GlowingText: React.FC<GlowingTextProps> = ({
         onPointerOut={out}
         onClick={() => console.log("clicked")}
         {...fontProps}
+        fontSize={2.5}
       >
         {children}
       </Text>
